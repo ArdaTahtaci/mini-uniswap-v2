@@ -40,50 +40,68 @@ contract MiniPairTest is Test {
     //               BASIC TOKEN0 -> TOKEN1 SWAP TEST
     // -------------------------------------------------------------
     function testSwapToken0ForToken1() public {
+        address t0 = pair.token0();
+        address t1 = pair.token1();
+
+        // Ensure user has both tokens
+        token0.mint(user, 10e18);
+        token1.mint(user, 10e18);
+
         vm.startPrank(user);
 
-        uint before = token1.balanceOf(user);
+        // Before swap: user balance of output token
+        uint before = IERC20(t1).balanceOf(user);
+
+        // Send token0 to pair
+        IERC20(t0).transfer(address(pair), 1e18);
 
         (uint112 r0, uint112 r1) = pair.getReserves();
-
         uint expectedOut = _getAmountOut(1e18, r0, r1);
 
-        token0.transfer(address(pair), 1e18);
-
+        // Execute the swap
         pair.swap(0, expectedOut, user);
 
-        uint afterSwap = token1.balanceOf(user);
+        // After swap: user balance of output token
+        uint afterSwap = IERC20(t1).balanceOf(user);
 
         vm.stopPrank();
 
+        // Net gain must equal expectedOut
         assertEq(
             afterSwap - before,
             expectedOut,
-            "User should receive correct amount"
+            "Incorrect token1 output amount"
         );
     }
 
     function testSwapToken1ForToken0() public {
+        address t0 = pair.token0();
+        address t1 = pair.token1();
+
+        token0.mint(user, 10e18);
+        token1.mint(user, 10e18);
+
         vm.startPrank(user);
 
-        uint before = token0.balanceOf(user);
+        uint before = IERC20(t0).balanceOf(user);
 
-        token1.transfer(address(pair), 1e18);
+        // Send token1 to pair
+        IERC20(t1).transfer(address(pair), 1e18);
 
         (uint112 r0, uint112 r1) = pair.getReserves();
-
         uint expectedOut = _getAmountOut(1e18, r1, r0);
 
+        // Swap: token1 -> token0 means amount0Out = expectedOut
         pair.swap(expectedOut, 0, user);
 
-        uint afterSwap = token0.balanceOf(user);
+        uint afterSwap = IERC20(t0).balanceOf(user);
 
         vm.stopPrank();
 
         assertEq(
             afterSwap - before,
             expectedOut,
-            "Reverse swap output mismatch"
+            "Incorrect token0 output amount"
         );
     }
 
