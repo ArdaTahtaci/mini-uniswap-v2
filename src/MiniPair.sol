@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
-import "../lib/forge-std/src/interfaces/IERC20.sol";
+import {
+    IERC20
+} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 /// @notice Mini Uniswap V2-style pair, swap-only, no LP tokens, no mint/burn.
 contract MiniPair {
@@ -29,14 +31,8 @@ contract MiniPair {
         require(_token0 != _token1, "IDENTICAL_ADDRESSES");
         require(_token0 != address(0) && _token1 != address(0), "ZERO_ADDRESS");
 
-        // canonical ordering: token0 < token1
-        if (_token0 < _token1) {
-            token0 = _token0;
-            token1 = _token1;
-        } else {
-            token0 = _token1;
-            token1 = _token0;
-        }
+        token0 = _token0;
+        token1 = _token1;
     }
 
     modifier nonReentrant() {
@@ -73,51 +69,72 @@ contract MiniPair {
         emit Sync(reserve0, reserve1);
     }
 
-    /// @notice One-time helper to seed initial liquidity (only for this mini project).
-    /// @dev Gerçek Uniswap'ta LP mint/burn ile yapılır; biz minimal setup için shortcut koyuyoruz.
+    /// @notice One-time helper to seed initial liquidity (only for this mini project). No LP mint/burn
     function sync() external {
-        // dışarıdan token transfer edilmişse, bunu reserve'lere yansıt.
         uint balance0 = IERC20(token0).balanceOf(address(this));
         uint balance1 = IERC20(token1).balanceOf(address(this));
         _update(balance0, balance1);
     }
 
     /// @notice Core swap function, Uniswap V2-style.
-    /// @dev Gerçek mantığı bir sonraki adımda dolduracağız.
-    ///      Kullanım: önce tokenIn'i bu kontrata transfer et, sonra swap(...) çağır.
     function swap(
         uint amount0Out,
         uint amount1Out,
         address to
     ) external nonReentrant {
-        require(to != token0 && to != token1, "INVALID_TO"); // Uni V2'de de bu var
+        require(amount0Out > 0 || amount1Out > 0, "INSUFFICIENT_OUTPUT_AMOUNT");
 
         (uint112 _reserve0, uint112 _reserve1) = getReserves();
-        require(amount0Out > 0 || amount1Out > 0, "INSUFFICIENT_OUTPUT_AMOUNT");
         require(
             amount0Out < _reserve0 && amount1Out < _reserve1,
             "INSUFFICIENT_LIQUIDITY"
         );
 
-        // Burada henüz hesap yapmıyoruz, iskelet:
-        // - tokenOut'u gönder
-        // - amountIn'i hesapla
-        // - fee + invariant check
-        // - _update()
+        require(to != token0 && to != token1, "INVALID_TO");
 
-        // 1) Tokenleri dışarı gönder
-        if (amount0Out > 0) _safeTransfer(token0, to, amount0Out);
-        if (amount1Out > 0) _safeTransfer(token1, to, amount1Out);
+        address _token0 = token0;
+        address _token1 = token1;
 
-        // 2) Yeni bakiyeleri oku
-        uint balance0 = IERC20(token0).balanceOf(address(this));
-        uint balance1 = IERC20(token1).balanceOf(address(this));
+        // 1) Send out
+        if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out);
+        if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out);
 
-        // Burada amountIn hesaplayıp invariant check koyacağız
-        // (gelecek adımda dolduracağız)
+        // 2) Get new balances
+        uint balance0 = IERC20(_token0).balanceOf(address(this));
+        uint balance1 = IERC20(_token1).balanceOf(address(this));
 
+        // 3) calculate real input amounts
+        uint amount0In = 0;
+        if (balance0 > _reserve0 - amount0Out) {
+            amount0In = balance0 - (_reserve0 - amount0Out);
+        }
+
+        uint amount1In = 0;
+        if (balance1 > _reserve1 - amount1Out) {
+            amount1In = balance1 - (_reserve1 - amount1Out);
+        }
+
+        require(amount0In > 0 || amount1In > 0, "INSUFFICIENT_INPUT_AMOUNT");
+
+        // 4) Apply 0.3% fee
+        // Uniswap V2:
+        // fee = 0.3% -> 1000 - 3 = 997
+        // balance0Adjusted = balance0 * 1000 - amount0In * 3
+        // balance1Adjusted = balance1 * 1000 - amount1In * 3
+        // require(balance0Adjusted * balance1Adjusted >= reserve0 * reserve1 * 1000^2)
+
+        uint balance0Adjusted = balance0 * 1000 - amount0In * 3;
+        uint balance1Adjusted = balance1 * 1000 - amount1In * 3;
+
+        require(
+            balance0Adjusted * balance1Adjusted >=
+                uint(_reserve0) * uint(_reserve1) * (1000 ** 2),
+            "K"
+        );
+
+        // 5) reserve'leri güncelle
         _update(balance0, balance1);
 
-        emit Swap(msg.sender, 0, 0, amount0Out, amount1Out, to);
+        emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
 }
