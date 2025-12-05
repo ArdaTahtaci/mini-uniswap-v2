@@ -33,6 +33,7 @@ contract MiniPairTest is Test {
         // 5) Kullanıcı adresini ayarla ve ona token mintle
         user = address(0xBEEF);
         token0.mint(user, 10e18);
+        token1.mint(user, 10e18);
     }
 
     // -------------------------------------------------------------
@@ -41,21 +42,87 @@ contract MiniPairTest is Test {
     function testSwapToken0ForToken1() public {
         vm.startPrank(user);
 
-        token0.transfer(address(pair), 1e18);
+        uint before = token1.balanceOf(user);
 
         (uint112 r0, uint112 r1) = pair.getReserves();
 
         uint expectedOut = _getAmountOut(1e18, r0, r1);
 
+        token0.transfer(address(pair), 1e18);
+
         pair.swap(0, expectedOut, user);
+
+        uint afterSwap = token1.balanceOf(user);
 
         vm.stopPrank();
 
         assertEq(
-            token1.balanceOf(user),
+            afterSwap - before,
             expectedOut,
             "User should receive correct amount"
         );
+    }
+
+    function testSwapToken1ForToken0() public {
+        vm.startPrank(user);
+
+        uint before = token0.balanceOf(user);
+
+        token1.transfer(address(pair), 1e18);
+
+        (uint112 r0, uint112 r1) = pair.getReserves();
+
+        uint expectedOut = _getAmountOut(1e18, r1, r0);
+
+        pair.swap(expectedOut, 0, user);
+
+        uint afterSwap = token0.balanceOf(user);
+
+        vm.stopPrank();
+
+        assertEq(
+            afterSwap - before,
+            expectedOut,
+            "Reverse swap output mismatch"
+        );
+    }
+
+    function testRevert_InsufficientLiquidity() public {
+        vm.expectRevert("INSUFFICIENT_LIQUIDITY");
+        pair.swap(0, 1000e18, user);
+    }
+
+    function testRevert_NoInput() public {
+        vm.expectRevert("INSUFFICIENT_INPUT_AMOUNT");
+        pair.swap(0, 1e18, user);
+    }
+
+    function testRevert_InvariantViolation() public {
+        token0.mint(user, 1000e18);
+
+        vm.startPrank(user);
+        token0.transfer(address(pair), 1e18);
+
+        vm.expectRevert(bytes("K"));
+        pair.swap(0, 50e18, user);
+        vm.stopPrank();
+    }
+
+    function test_K_Increases_AfterSwap() public {
+        (uint112 r0, uint112 r1) = pair.getReserves();
+        uint oldK = uint(r0) * uint(r1);
+
+        token0.mint(user, 1e18);
+        vm.startPrank(user);
+        token0.transfer(address(pair), 1e18);
+        uint expectedOut = _getAmountOut(1e18, r0, r1);
+        pair.swap(0, expectedOut, user);
+        vm.stopPrank();
+
+        (uint112 nr0, uint112 nr1) = pair.getReserves();
+        uint newK = uint(nr0) * uint(nr1);
+
+        assertGt(newK, oldK, "k should increase because of fee");
     }
 
     function _getAmountOut(
