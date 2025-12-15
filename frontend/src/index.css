@@ -1,0 +1,263 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+@import "tailwindcss";
+
+/* ----------------------------------------
+   Custom Tokens — Tailwind v4-compatible
+---------------------------------------- */
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --transition-base: 150ms ease-out;
+    --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Colors (HSL values) */
+    --background: 230 35% 10%;
+    --foreground: 0 0% 98%;
+    --border: 240 20% 25%;
+    --card: 230 30% 14%;
+    --primary: 262 83% 65%;
+    --primary-foreground: 0 0% 100%;
+    --muted-foreground: 240 10% 70%;
+    --accent: 280 100% 75%;
+    --accent-secondary: 195 100% 60%;
+    --success: 142 76% 45%;
+    --error: 0 84% 65%;
+
+    /* Gradient Colors */
+    --gradient-primary-start: 262 83% 58%;
+    --gradient-primary-end: 280 100% 70%;
+    --gradient-secondary-start: 195 100% 50%;
+    --gradient-secondary-end: 262 83% 58%;
+    --gradient-accent-start: 338 100% 70%;
+    --gradient-accent-end: 262 83% 58%;
+
+    /* Shadows */
+    --card-shadow: 0px 4px 24px rgba(0, 0, 0, 0.5),
+      0px 2px 8px rgba(0, 0, 0, 0.4),
+      0px 0px 0px 1px rgba(139, 92, 246, 0.1);
+    --glow-primary: 0 0 20px rgba(139, 92, 246, 0.3),
+      0 0 40px rgba(139, 92, 246, 0.15);
+    --glow-accent: 0 0 20px rgba(59, 130, 246, 0.3),
+      0 0 40px rgba(59, 130, 246, 0.15);
+
+    /* Backgrounds */
+    --grid-lines: linear-gradient(to right,
+        hsl(var(--border) / 0.08) 1px,
+        transparent 1px),
+      linear-gradient(to bottom,
+        hsl(var(--border) / 0.08) 1px,
+        transparent 1px);
+
+    --radial-fade: radial-gradient(ellipse 80% 50% at 50% -20%,
+        hsl(var(--gradient-primary-start) / 0.25),
+        transparent 60%);
+
+    --radial-accent: radial-gradient(ellipse 60% 40% at 80% 120%,
+        hsl(var(--gradient-secondary-start) / 0.2),
+        transparent 50%);
+
+    --panel-gradient: radial-gradient(circle at 20% 20%, hsl(var(--primary) / 0.12), transparent 50%);
+
+    /* Animated gradient orbs */
+    --orb-primary: radial-gradient(circle at center,
+        hsl(var(--gradient-primary-start) / 0.2),
+        transparent 70%);
+    --orb-secondary: radial-gradient(circle at center,
+        hsl(var(--gradient-secondary-start) / 0.15),
+        transparent 70%);
+    --orb-accent: radial-gradient(circle at center,
+        hsl(var(--gradient-accent-start) / 0.18),
+        transparent 70%);
+  }
+
+  /* Global border color */
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    min-height: 100vh;
+    font-feature-settings: "ss03", "cv01";
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: var(--grid-lines), var(--radial-fade), var(--radial-accent);
+    background-size: 40px 40px, 100% 100%, 100% 100%;
+    background-position: 0 0, 50% 0, 80% 100%;
+    opacity: 0.8;
+  }
+
+  /* Animated gradient orbs */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(circle 600px at 20% 30%, hsl(var(--gradient-primary-start) / 0.18), transparent),
+      radial-gradient(circle 500px at 80% 70%, hsl(var(--gradient-secondary-start) / 0.14), transparent),
+      radial-gradient(circle 400px at 50% 50%, hsl(var(--gradient-accent-start) / 0.12), transparent);
+    animation: gradientShift 20s ease-in-out infinite;
+  }
+
+  @keyframes gradientShift {
+
+    0%,
+    100% {
+      opacity: 0.6;
+      filter: blur(60px);
+    }
+
+    50% {
+      opacity: 0.85;
+      filter: blur(80px);
+    }
+  }
+
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.3);
+    color: hsl(var(--primary-foreground));
+  }
+}
+
+/* ----------------------------------------
+   Utilities — Tailwind v4-compatible
+---------------------------------------- */
+
+@layer utilities {
+  .glass-surface {
+    background: linear-gradient(135deg,
+        hsl(var(--card) / 0.8) 0%,
+        hsl(var(--card) / 0.6) 100%);
+    border: 1px solid hsl(var(--border) / 0.5);
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(20px);
+  }
+
+  .glass-surface-strong {
+    background: linear-gradient(135deg,
+        hsl(var(--card) / 0.95) 0%,
+        hsl(var(--card) / 0.85) 100%);
+    border: 1px solid hsl(var(--border) / 0.6);
+    box-shadow: var(--card-shadow), var(--glow-primary);
+    backdrop-filter: blur(24px);
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid hsl(var(--primary) / 0.3);
+    background: linear-gradient(135deg,
+        hsl(var(--primary) / 0.15),
+        hsl(var(--primary) / 0.08));
+    padding: 4px 12px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: hsl(var(--primary));
+    font-weight: 600;
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.2);
+  }
+
+  .hover-lift {
+    transition: transform var(--transition-base),
+      box-shadow var(--transition-base),
+      border-color var(--transition-base);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+      0 0 0 1px hsl(var(--primary) / 0.3),
+      var(--glow-primary);
+    border-color: hsl(var(--primary) / 0.5);
+  }
+
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        hsl(var(--primary) / 0.1) 50%,
+        transparent 100%);
+    transform: translateX(-100%);
+    animation: shimmer 3s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .gradient-border {
+    position: relative;
+    background: linear-gradient(135deg,
+        hsl(var(--gradient-primary-start)),
+        hsl(var(--gradient-primary-end)));
+    padding: 1px;
+    border-radius: inherit;
+  }
+
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    background: hsl(var(--card));
+    border-radius: inherit;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg,
+        hsl(var(--gradient-primary-start)),
+        hsl(var(--gradient-accent-start)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-accent {
+    box-shadow: var(--glow-accent);
+  }
+}

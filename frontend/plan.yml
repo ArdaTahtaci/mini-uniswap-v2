@@ -1,0 +1,166 @@
+version: 1
+project: "MiniDEX – UI Redesign for Simplicity"
+role: >
+  You are an experienced product/UI engineer with the taste and restraint of an ex-Apple designer.
+  Your job is to simplify and refine the existing MiniDEX interface without breaking any logic
+  or blockchain interactions. You must deeply understand the current structure before changing it.
+
+context:
+  tech_stack:
+    - "React + TypeScript"
+    - "Tailwind CSS v4 (with CSS variables for theme tokens)"
+    - "wagmi v3 + viem v2 (do not break these)"
+    - "Mini Uniswap-style DEX on Base Sepolia (TRUMP/PENGU pair and future pools)"
+  architecture:
+    - "Logic lives in hooks (src/hooks), contracts (contracts.ts, ABIs), and wagmi config."
+    - "UI is mostly presentational components and pages in src/components and src/pages."
+    - "Imports use relative paths (../../), no @ aliases."
+  non_goals:
+    - "Do NOT change contract addresses, ABI shapes, or any Solidity logic."
+    - "Do NOT change wagmi/viem configuration or hook signatures."
+    - "Do NOT remove critical state logic inside hooks (useSwap, useReserves, usePairTokens, etc.)."
+
+high_level_instruction:
+  - "Before changing anything, scan the project to understand the current visual language:"
+  - "• Inspect main layout, Navbar, Dashboard, SwapBox, PairPage, Markets page, PoolInfo, and shared components."
+  - "• Inspect index.css and tailwind config to understand the current color tokens and shadows."
+  - "Only then start refactoring the UI. Think in terms of systems, not one-off tweaks."
+
+design_principles:
+  visual_language:
+    - "Dark, minimal, calm. Fewer colors, more hierarchy."
+    - "Avoid 'gaming neon' or noisy gradients. Use subtle accents and clear contrast."
+    - "Typography should be clean and legible; numbers especially should feel trustworthy."
+  simplicity:
+    - "If an element does not communicate clear value or affordance, simplify or remove it."
+    - "Static values should not look like buttons. Do not put plain labels inside button-like surfaces."
+    - "Every visual flourish must justify its existence: either hierarchy, clarity, or feedback."
+  hierarchy:
+    - "Only primary actions should look like strong buttons."
+    - "Secondary information should recede: smaller, muted, or grouped visually."
+    - "Clickable vs non-clickable elements must be visually distinct."
+  consistency:
+    - "Same spacing, radius, and shadows across all cards/panels."
+    - "Same interaction patterns for similar components (all cards hover the same, all buttons behave the same)."
+    - "Use a constrained color system: a small, coherent palette instead of many unique ad-hoc colors."
+
+theme_and_colors:
+  goals:
+    - "Audit the current color usage and remove mismatched or clashing colors."
+    - "Base all colors off a small set of CSS variables in index.css (:root)."
+  tasks:
+    - "Identify all places where colors are hard-coded (e.g. text-[#xyz], bg-[rgb(...)]). Replace them with theme tokens."
+    - "Normalize primary action color (Swap button, major CTAs) to a single primary color and its hover state."
+    - "Ensure sufficient contrast for text and critical UI (WCAG-ish, not perfect but sane)."
+    - "Unify gradients: dashboard hero gradient is nice; reuse a softened variant for key panels only, not everywhere."
+  constraints:
+    - "Keep overall dark mode aesthetic."
+    - "Prefer a single accent color for primary actions and highlights."
+
+interaction_model:
+  goals:
+    - "Make the app feel like a clean DEX, not a debug dashboard."
+    - "Clarify what is clickable vs read-only."
+  rules:
+    clickable:
+      - "Buttons, nav items, clickable cards, icon-actions → must have cursor: pointer, hover feedback, and consistent hitbox."
+      - "Use a single Button component for all primary actions (swap, add/remove liquidity, connect wallet, etc.)."
+      - "Market cards and pair tiles should clearly feel like they navigate somewhere."
+    static:
+      - "Plain values (like PENGU amount, reserves, addresses, labels) must NOT look like buttons."
+      - "Use simple text rows, stat chips, or compact info cards instead of button-like containers."
+    focus:
+      - "Inputs and critical interactive fields must have a clear focus state (ring/border), without visual noise."
+
+layout_and_components:
+  general:
+    - "Favor fewer, clearer sections per page over many nested cards."
+    - "Use whitespace and alignment to create structure, not random div stacking."
+  navbar:
+    goals:
+      - "Make the nav look like a real app navigation, not static labels."
+    tasks:
+      - "Ensure nav items have hover states, active state, and cursor-pointer."
+      - "Increase the horizontal padding of nav items; ensure they feel tap-friendly."
+      - "Visually differentiate active route (underline, pill, or subtle highlight)."
+  dashboard:
+    goals:
+      - "A calm overview of the DEX and entry points to the main flows."
+    tasks:
+      - "Refine the hero card 'Trade Base Sepolia pairs…' as the main welcome panel."
+      - "Keep its gradient, but ensure it is subtle and does not clash with other cards."
+      - "Arrange secondary cards (metrics, quick links) in a simple grid with consistent spacing."
+  swapbox:
+    goals:
+      - "Make SwapBox look and behave like a standard DEX swap panel (Uniswap-style, but simpler)."
+    problems_to_fix:
+      - "Values or labels wrapped in button-like components where there is no action."
+      - "Too many cards or surfaces; reduce visual nesting."
+    tasks:
+      - "Structure as: FROM (amount+token), TO (estimated amount+token), price/summary line, primary Swap button."
+      - "Use clear labels ('From', 'To', 'Rate', 'Min received') instead of cryptic or overly fancy wording."
+      - "Ensure token selectors and amounts are visually distinct from pure labels."
+      - "Keep the Swap button as a strong, clear primary CTA with a consistent color."
+  pair_page:
+    goals:
+      - "A focused cockpit: Pool Info + Swap, not an over-decorated dashboard."
+    tasks:
+      - "Use a two-column layout on desktop: left = Pool Info, right = SwapBox. Stack on mobile."
+      - "Pool Info should be a simple stat card: reserves (formatted, not wei), price, LP supply, your LP."
+      - "Avoid embedding too many button-like elements inside the Pool Info card; use plain rows or stat chips."
+  markets_page:
+    goals:
+      - "Act like a minimal 'Markets' list."
+    tasks:
+      - "Each pair card shows token0/token1, price, and total liquidity."
+      - "Entire card is clickable, with a consistent hover effect."
+      - "Remove any unnecessary decorations that distract from the pair info."
+
+modularity:
+  goals:
+    - "Leverage the existing component-based structure; reduce duplication."
+  tasks:
+    - "Introduce or refine small reusable components for recurring patterns:"
+    - "• TokenBadge – symbol + shortened address + optional decimals."
+    - "• StatRow – label + value, used for reserves, prices, balances."
+    - "• Panel – consistent card wrapper used across SwapBox, PoolInfo, Dashboard."
+    - "Replace ad-hoc Tailwind blobs where repeated with these components."
+  constraints:
+    - "Do not break existing props or behaviors of logical hooks/components."
+    - "Keep prop names simple and descriptive."
+
+data_presentation:
+  rules:
+    - "Never show raw wei values in the UI."
+    - "Always format BigInt values using viem.formatUnits with the correct decimals."
+    - "Round to a reasonable number of decimals (4–6), depending on context."
+    - "Use monospace font for numeric-heavy rows (reserves, prices, amounts) where it improves readability."
+    - "If a value is not critical, de-emphasize it (smaller font, muted color)."
+  tasks:
+    - "Audit all places showing numbers: reserves, amounts, balances, LP shares, prices."
+    - "Fix any place where raw BigInt/wei-like values leak into the UI."
+
+refactor_scope:
+  allowed:
+    - "Rewriting JSX of presentational components to be cleaner, more minimal."
+    - "Simplifying layouts (reducing nested cards, merging similar sections)."
+    - "Renaming UI-only components, as long as imports are updated."
+    - "Reorganizing styles in index.css and Tailwind usage for clarity."
+  forbidden:
+    - "Changing function signatures of hooks (useSwap, useReserves, usePairTokens, etc.)."
+    - "Changing wagmi or viem configuration or removing providers."
+    - "Changing contract addresses or ABI definitions."
+    - "Altering business logic or math (swap calculation, reserve usage, slippage)."
+
+review_checklist:
+  - "1) Run through main flows visually: Dashboard → Markets → Pair → Swap."
+  - "2) Confirm nothing looks like a button unless it is truly clickable."
+  - "3) Confirm all numbers are formatted, not raw wei."
+  - "4) Confirm nav clearly expresses which page is active."
+  - "5) Confirm spacing, radius, and shadows feel consistent across all panels."
+  - "6) Confirm the overall UI feels calmer, simpler, and more DEX-like, not over-designed."
+
+notes_for_assistant:
+  - "You have full authority over visual and structural UI changes, as long as you respect the logic boundaries above."
+  - "When in doubt, choose the simpler visual option."
+  - "Aim for a design that a minimalist, taste-obsessed senior designer would be proud to ship."
