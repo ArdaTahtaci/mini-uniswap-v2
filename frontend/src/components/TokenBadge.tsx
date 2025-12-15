@@ -14,7 +14,7 @@ function shorten(address: `0x${string}`) {
 export function TokenBadge({ symbol, address, decimals, className }: TokenBadgeProps) {
     return (
         <div className={cn(
-            "inline-flex items-center gap-2.5 rounded-xl border border-white/10 px-3 py-2",
+            "inline-flex items-center gap-3 rounded-xl border border-white/10 px-4 py-2.5",
             "bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm",
             "hover:border-primary/30 transition-all duration-200",
             "shadow-sm hover:shadow-md",

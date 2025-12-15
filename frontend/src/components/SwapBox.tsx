@@ -14,6 +14,7 @@ import { useTokenBalance } from "../hooks/useTokenBalance";
 import { parseUnits, formatUnits } from "viem";
 import { TokenBadge } from "../components/TokenBadge";
 import { baseSepolia } from 'wagmi/chains'
+import { calculatePriceImpact, getPriceImpactSeverity, getPriceImpactColor } from "../utils/calculatePriceImpact";
 
 
 interface SwapBoxProps {
@@ -102,6 +103,14 @@ export function SwapBox({ initialPair }: SwapBoxProps) {
         return `Price: 1 ${metaIn.symbol} ≈ ${price.toFixed(6)} ${metaOut.symbol}`;
     }, [reserveIn, reserveOut, metaIn.decimals, metaIn.symbol, metaOut.decimals, metaOut.symbol]);
 
+    // Price Impact calculation
+    const priceImpact = useMemo(() => {
+        if (!amountInWei || !reserveIn || !reserveOut || amountInWei === 0n) return null;
+        const impact = calculatePriceImpact(amountInWei, reserveIn, reserveOut, metaIn.decimals, metaOut.decimals);
+        const severity = getPriceImpactSeverity(impact);
+        return { impact, severity };
+    }, [amountInWei, reserveIn, reserveOut, metaIn.decimals, metaOut.decimals]);
+
     const swapDisabled = !account || !amountIn || !tokenIn || !tokenOut || !reserveIn || !reserveOut || isProcessing || swapPending || isApproving || insufficientBalance;
 
     async function handleSwap() {
@@ -157,7 +166,7 @@ export function SwapBox({ initialPair }: SwapBoxProps) {
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-5">
             <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
                     {metaIn.symbol} → {metaOut.symbol}
@@ -191,7 +200,7 @@ export function SwapBox({ initialPair }: SwapBoxProps) {
                         <span>{metaIn.decimals} decimals</span>
                     </span>
                 </div>
-                <div className={`rounded-xl border p-4 ${insufficientBalance
+                <div className={`rounded-xl border p-5 ${insufficientBalance
                     ? "border-red-500/40 bg-red-500/5"
                     : "border-white/10 bg-white/5"
                     }`}>
@@ -216,7 +225,7 @@ export function SwapBox({ initialPair }: SwapBoxProps) {
                     <span>To (estimated)</span>
                     <span>Live reserves</span>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <div className="rounded-xl border border-white/10 bg-white/5 p-5">
                     <div className="flex items-center gap-3 mb-3">
                         <div className="flex-1 text-2xl font-semibold font-mono text-muted-foreground">
                             {outDisplay}
@@ -242,6 +251,17 @@ export function SwapBox({ initialPair }: SwapBoxProps) {
                     <div className="text-xs text-amber-400/80 px-1 flex items-center gap-1">
                         <span>⚠️</span>
                         <span>Approval needed - clicking Swap will request approval first</span>
+                    </div>
+                )}
+
+                {priceImpact && priceImpact.impact > 0.5 && (
+                    <div className={`text-xs px-1 flex items-center gap-1 font-semibold ${getPriceImpactColor(priceImpact.severity)}`}>
+                        <span>{priceImpact.severity === "critical" ? "🚨" : priceImpact.severity === "high" ? "⚠️" : "ℹ️"}</span>
+                        <span>
+                            Price Impact: {priceImpact.impact.toFixed(2)}%
+                            {priceImpact.severity === "critical" && " - Very High Impact!"}
+                            {priceImpact.severity === "high" && " - High Impact"}
+                        </span>
                     </div>
                 )}
 

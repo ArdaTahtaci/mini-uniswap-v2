@@ -113,11 +113,11 @@ export function AddLiquidityBox() {
         <Panel className="space-y-4">
             <div>
                 <h3 className="text-lg font-semibold">Add Liquidity</h3>
-                <p className="text-sm text-muted-foreground mt-1">Deposit tokens to the pool</p>
+                <p className="text-sm text-muted-foreground my-1">Deposit tokens to the pool</p>
             </div>
 
             {/* Pool Selection */}
-            <div className="space-y-2">
+            <div className="space-y-2 my-2">
                 <label className="text-sm text-muted-foreground">Select Pool</label>
                 <Select value={selectedPool} onValueChange={(value) => setSelectedPool(value as `0x${string}`)}>
                     <SelectTrigger className="w-full">
@@ -138,7 +138,7 @@ export function AddLiquidityBox() {
 
             {/* Token Amount Inputs - Only show when pool is selected */}
             {selectedPool && token0 && token1 && (
-                <div className="space-y-3">
+                <div className="space-y-3 mb-3">
                     <div className="space-y-2">
                         <label className="text-sm text-muted-foreground">{meta0.symbol} Amount</label>
                         <Input

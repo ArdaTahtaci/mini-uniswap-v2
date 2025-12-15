@@ -10,7 +10,7 @@ export function Panel({ className, children, ...props }: PanelProps) {
     return (
         <div
             className={cn(
-                "relative overflow-hidden rounded-2xl border border-white/10 p-6 backdrop-blur-xl",
+                "relative overflow-hidden rounded-2xl border border-white/10 p-8 backdrop-blur-xl",
                 "bg-linear-to-br from-card/90 to-card/70",
                 "shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_0_1px_rgba(139,92,246,0.1)]",
                 "transition-all duration-300",

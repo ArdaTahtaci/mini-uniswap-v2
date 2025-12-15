@@ -1,5 +1,5 @@
+import type { ReactNode } from "react"
 import { cn } from "../utils/cn"
-import { ReactNode } from "react"
 
 interface StatCardProps {
     label: string
@@ -14,7 +14,7 @@ export function StatCard({ label, value, hint, className, onClick }: StatCardPro
     return (
         <div
             className={cn(
-                "group relative rounded-xl border border-white/10 p-4 overflow-hidden",
+                "group relative rounded-xl border border-white/10 p-5 overflow-hidden",
                 "bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm",
                 "transition-all duration-300",
                 "shadow-sm hover:shadow-md",

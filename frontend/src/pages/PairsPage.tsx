@@ -25,7 +25,7 @@ export function PairsPage() {
             ) : pairs.length === 0 ? (
                 <div className="text-center text-muted-foreground py-12">No pools available</div>
             ) : (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-2">
                     {pairs.map((pair) => (
                         <PairCard key={pair} pair={pair} />
                     ))}
@@ -47,33 +47,33 @@ function PairCard({ pair }: { pair: `0x${string}` }) {
 
     return (
         <Link to={`/pair/${pair}`} className="no-underline block">
-            <Panel className="cursor-pointer transition hover:border-primary/40 hover:bg-primary/5 space-y-4">
+            <Panel className="cursor-pointer transition hover:border-primary/40 hover:bg-primary/5 space-y-5">
                 {/* Price - Prominent at top */}
-                <div className="rounded-lg border border-primary/30 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent p-3">
-                    <div className="text-xs text-muted-foreground mb-1">Current Price</div>
+                <div className="rounded-lg border border-primary/30 bg-linear-to-r from-primary/15 via-primary/10 to-transparent p-4">
+                    <div className="text-xs text-muted-foreground mb-2">Current Price</div>
                     <div className="text-base font-semibold font-mono">
                         {isLoading ? "Loading..." : price ?? "—"}
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 my-2">
                     {token0 && <TokenBadge symbol={meta0.symbol} address={token0} decimals={meta0.decimals} />}
                     <span className="text-muted-foreground">/</span>
                     {token1 && <TokenBadge symbol={meta1.symbol} address={token1} decimals={meta1.decimals} />}
                 </div>
 
-                <div className="pt-3 border-t border-white/10">
-                    <div className="text-xs text-muted-foreground mb-1">Total Liquidity</div>
+                <div className="pt-4 border-t border-white/10 my-1">
+                    <div className="text-xs text-muted-foreground mb-2">Total Liquidity</div>
                     <div className="text-sm font-semibold font-mono">
                         {isLoading ? "Loading..." : liquidity ?? "—"}
                     </div>
                 </div>
 
-                <div className="text-xs text-muted-foreground font-mono truncate pt-2 border-t border-white/10">
+                <div className="text-xs text-muted-foreground font-mono truncate pt-3 border-t border-white/10">
                     {pair}
                 </div>
 
-                <div className="text-xs text-primary hover:underline pt-2">
+                <div className="text-xs text-primary hover:underline pt-3">
                     View Details →
                 </div>
             </Panel>

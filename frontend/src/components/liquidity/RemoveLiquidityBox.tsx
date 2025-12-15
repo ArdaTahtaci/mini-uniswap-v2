@@ -112,11 +112,11 @@ export function RemoveLiquidityBox() {
         <Panel className="space-y-4">
             <div>
                 <h3 className="text-lg font-semibold">Remove Liquidity</h3>
-                <p className="text-sm text-muted-foreground mt-1">Withdraw your position</p>
+                <p className="text-sm text-muted-foreground my-1">Withdraw your position</p>
             </div>
 
             {/* Pool Selection */}
-            <div className="space-y-2">
+            <div className="space-y-2 my-2">
                 <label className="text-sm text-muted-foreground">Select Pool</label>
                 <Select value={selectedPool} onValueChange={(value) => setSelectedPool(value as `0x${string}`)}>
                     <SelectTrigger className="w-full">
@@ -138,7 +138,7 @@ export function RemoveLiquidityBox() {
             {/* LP Token Amount Input - Only show when pool is selected */}
             {selectedPool && token0 && token1 && (
                 <>
-                    <div className="space-y-2">
+                    <div className="space-y-2 my-3">
                         <div className="flex items-center justify-between">
                             <label className="text-sm text-muted-foreground">LP Token Amount</label>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -161,7 +161,7 @@ export function RemoveLiquidityBox() {
                         />
                     </div>
 
-                    <div className="space-y-2 pt-3 border-t border-white/10">
+                    <div className="space-y-2 pt-3 border-t border-white/10 mb-3">
                         <div className="text-xs text-muted-foreground mb-2">You will receive:</div>
                         <div className="flex flex-col gap-2">
                             <TokenBadge symbol={meta0.symbol} address={token0} decimals={meta0.decimals} />

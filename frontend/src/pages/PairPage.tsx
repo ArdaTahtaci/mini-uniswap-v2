@@ -56,12 +56,12 @@ export function PairPage() {
             {/* Two-column layout */}
             <div className="grid gap-6 lg:grid-cols-[1fr_1.5fr]">
                 {/* Pool Info */}
-                <Panel className="space-y-4">
-                    <h2 className="text-lg font-semibold">Pool Info</h2>
+                <Panel className="space-y-6">
+                    <h2 className="text-lg font-semibold mb-2">Pool Info</h2>
 
                     {/* Price - Prominent at top */}
                     {price && (
-                        <div className="rounded-lg border border-primary/30 bg-linear-to-r from-primary/15 via-primary/10 to-transparent p-3">
+                        <div className="rounded-lg border border-primary/30 bg-linear-to-r from-primary/15 via-primary/10 to-transparent p-4 my-2">
                             <div className="text-xs text-muted-foreground mb-1">Current Price</div>
                             <div className="text-base font-semibold font-mono">{price}</div>
                         </div>
@@ -77,13 +77,13 @@ export function PairPage() {
                     {tokensLoading ? (
                         <p className="text-sm text-muted-foreground">Loading tokens...</p>
                     ) : (
-                        <div className="space-y-3">
+                        <div className="space-y-4 my-4">
                             <div>
-                                <div className="text-xs text-muted-foreground mb-2">Token 0</div>
+                                <div className="text-xs text-muted-foreground mb-3">Token 0</div>
                                 {token0 && <TokenBadge symbol={meta0.symbol} address={token0} decimals={meta0.decimals} />}
                             </div>
                             <div>
-                                <div className="text-xs text-muted-foreground mb-2">Token 1</div>
+                                <div className="text-xs text-muted-foreground mb-3">Token 1</div>
                                 {token1 && <TokenBadge symbol={meta1.symbol} address={token1} decimals={meta1.decimals} />}
                             </div>
                         </div>
@@ -92,7 +92,7 @@ export function PairPage() {
                     {reservesLoading ? (
                         <div className="text-sm text-muted-foreground">Loading reserves...</div>
                     ) : reserves ? (
-                        <div className="space-y-2 pt-4 border-t border-white/10">
+                        <div className="space-y-3 pt-6 border-t border-white/10">
                             <StatRow
                                 label={`Reserve ${meta0.symbol}`}
                                 value={reserve0Display}
