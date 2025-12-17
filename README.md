@@ -2,6 +2,9 @@
 
 A complete, minimal Uniswap V2–style DEX built end-to-end: **Factory + Pair + Router + UI**.
 
+<img width="1724" height="962" alt="image" src="https://github.com/user-attachments/assets/ef81f7c6-818e-472a-b610-55f5289c01a4" />
+
+
 This repo includes:
 
 * **Solidity contracts** (Factory / Pair / Router + ERC-20 test tokens)
@@ -34,6 +37,64 @@ This repo includes:
 
 ---
 
+### What this project demonstrates
+
+**Protocol engineering fundamentals**
+* **AMM mechanics ($x \cdot y = k$):** constant-product pricing driven by pool reserves.
+* **Liquidity provisioning**
+    * deposit two assets into a pool
+    * mint LP tokens representing pool share
+    * burn LP tokens to withdraw proportional reserves
+* **On-chain market discovery via Factory**
+    * read `allPairsLength()` and `allPairs(i)` from the UI
+    * resolve pools with `getPair(tokenA, tokenB)`
+* **Swap execution** through a Router abstraction that routes to the correct pair.
+
+**Web3 integration & UX**
+* **Wallet connection + network config** for Base Sepolia (chainId: `84532`).
+* **Read/write contract flows** with `wagmi` (v3) + `viem` (v2).
+* **ERC-20 approve → action flows** for swaps and liquidity.
+* **Correct handling of:**
+    * token decimals (18 vs 6)
+    * canonical ordering (`token0`/`token1`) vs UI-selected order
+    * reserve normalization for human-readable prices
+* **Price impact warning** in the swap flow (based on reserves + trade size).
+
+---
+
+### Contracts (high level)
+
+This repo includes a minimal Uniswap V2–style suite:
+
+* **MiniFactory**
+    * creates pairs
+    * stores pair addresses
+    * exposes `allPairsLength()` / `allPairs(i)` and `getPair(...)`
+* **MiniPair**
+    * holds reserves
+    * LP mint/burn
+    * exposes `getReserves()` and token addresses
+* **MiniRouter**
+    * convenience methods to add/remove liquidity
+    * swap entrypoints that interact with pairs
+* **TestToken (ERC-20)**
+    * used to create realistic markets on Base Sepolia
+    * supports minting for seeding pools
+
+> **Note:** Contracts are written in Solidity 0.8.20 and deployed/seeded using Foundry.
+
+---
+
+### Testing & validation
+
+The focus was correctness and end-to-end behavior:
+
+* **Verified reserve changes** after add/remove liquidity.
+* **Verified swap outputs** match expectations based on live reserves.
+* **Validated approvals/allowances** and common failure cases.
+* **Confirmed UI state** matches on-chain state (pairs, reserves, pricing).
+
+---
 ## Tech Stack
 
 ### Frontend
