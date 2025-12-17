@@ -4,6 +4,16 @@ A complete, minimal Uniswap V2–style DEX built end-to-end: **Factory + Pair + 
 
 <img width="1724" height="962" alt="image" src="https://github.com/user-attachments/assets/ef81f7c6-818e-472a-b610-55f5289c01a4" />
 
+---
+
+
+https://github.com/user-attachments/assets/416bc01d-22bb-4b22-9642-566b349a414a
+
+
+
+
+---
+
 
 This repo includes:
 
