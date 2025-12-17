@@ -6,11 +6,7 @@ A complete, minimal Uniswap V2–style DEX built end-to-end: **Factory + Pair + 
 
 ---
 
-
 https://github.com/user-attachments/assets/416bc01d-22bb-4b22-9642-566b349a414a
-
-
-
 
 ---
 
@@ -72,7 +68,7 @@ This repo includes:
 
 ---
 
-### Contracts (high level)
+### Contracts 
 
 This repo includes a minimal Uniswap V2–style suite:
 
